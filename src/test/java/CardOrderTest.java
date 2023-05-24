@@ -151,9 +151,9 @@ public class CardOrderTest {
         $("[data-test-id= 'notification']").shouldBe(appear, Duration.ofSeconds(15));
     }
     @Test
-    void shouldData31052023() {
+    void shouldDataThisMonth() {
         open("http://localhost:9999");
-        $("[data-test-id= 'city'] input").setValue("Казань");
+        $("[data-test-id = 'city'] input").setValue("Казань");
         $("[data-test-id = 'date'] input").sendKeys(Keys.chord(Keys.CONTROL,"a"), BACK_SPACE);
         $("[data-test-id = 'date'] input").click();
         $(withText("31")).click();
@@ -164,9 +164,9 @@ public class CardOrderTest {
         $("[data-test-id= 'notification']").shouldBe(appear, Duration.ofSeconds(15));
     }
     @Test
-    void shouldData05062023() {
+    void shouldDataNextMonth() {
         open("http://localhost:9999");
-        $("[data-test-id= 'city'] input").setValue("Казань");
+        $("[data-test-id = 'city'] input").setValue("Казань");
         $("[data-test-id = 'date'] input").sendKeys(Keys.chord(Keys.CONTROL,"a"), BACK_SPACE);
         $("[data-test-id = 'date'] input").click();
         $("[class= 'calendar__arrow calendar__arrow_direction_right']").click();
