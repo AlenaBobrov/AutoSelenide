@@ -17,6 +17,9 @@ public class CardOrderTest {
     String generateDate (int daysToAdd, String pattern){
         return LocalDate.now().plusDays(daysToAdd).format(DateTimeFormatter.ofPattern(pattern));
     }
+    String generateDateDay (int daysToAdd, String pattern){
+        return LocalDate.now().plusDays(daysToAdd).format(DateTimeFormatter.ofPattern(pattern));
+    }
     @Test
     void shouldRegister() {
         open("http://localhost:9999");
@@ -156,7 +159,8 @@ public class CardOrderTest {
         $("[data-test-id = 'city'] input").setValue("Казань");
         $("[data-test-id = 'date'] input").sendKeys(Keys.chord(Keys.CONTROL,"a"), BACK_SPACE);
         $("[data-test-id = 'date'] input").click();
-        $(withText("31")).click();
+        String date = generateDateDay(3, "dd");
+        $(withText(date)).click();
         $("[data-test-id='name'] input").setValue("Иванова Анна");
         $("[data-test-id= 'phone'] input").setValue("+79261111111");
         $("[data-test-id= 'agreement']").click();
