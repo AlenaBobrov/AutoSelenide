@@ -2,12 +2,11 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-
+import com.codeborne.selenide.Condition;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Keys;
 
 import static com.codeborne.selenide.Condition.*;
-import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selectors.withText;
 import static com.codeborne.selenide.Selenide.*;
 import static org.openqa.selenium.Keys.BACK_SPACE;
@@ -16,10 +15,7 @@ public class CardOrderTest {
     String generateDate(int daysToAdd, String pattern) {
         return LocalDate.now().plusDays(daysToAdd).format(DateTimeFormatter.ofPattern(pattern));
     }
-
-    String generateDateDay(int daysToAdd, String pattern) {
-        return LocalDate.now().plusDays(daysToAdd).format(DateTimeFormatter.ofPattern(pattern));
-    }
+    String data = generateDate(3, "dd.MM.yyyy");
 
     @Test
     void shouldRegister() {
@@ -31,8 +27,7 @@ public class CardOrderTest {
         $("[data-test-id= 'phone'] input").setValue("+79261111111");
         $("[data-test-id= 'agreement']").click();
         $$("button").find(exactText("Забронировать")).click();
-        $("[data-test-id= 'notification']").shouldBe(appear, Duration.ofSeconds(15));
-
+        $("[data-test-id= 'notification']").shouldBe(appear, Duration.ofSeconds(15)).shouldHave(Condition.text(data), Condition.visible);
     }
 
     @Test
@@ -150,76 +145,39 @@ public class CardOrderTest {
         $x("//span[@data-test-id='date']//span[contains(text(), 'Неверно введена дата')]").should(appear);
     }
 
+
     @Test
-    void shouldChooseCity() {
+    void shouldDataNextMonthAndCity() {
         open("http://localhost:9999");
+
+        LocalDate currentDate = LocalDate.now();
+        int currentMonth = currentDate.getMonthValue();
+        int daysPlus = 50;
+
+        LocalDate deliveryDate = currentDate.plusDays(daysPlus);
+        int deliveryMonth = deliveryDate.getMonthValue();
+        int deliveryDayOfMonth = deliveryDate.getDayOfMonth();
+
+        String data = generateDate(daysPlus, "dd.MM.yyyy");
+
         $("[data-test-id= 'city'] input").setValue("Ка");
         $(withText("Калуга")).click();
         $("[data-test-id = 'date'] input").sendKeys(Keys.chord(Keys.CONTROL, "a"), BACK_SPACE);
-        $("[data-test-id= 'date'] input").setValue(generateDate(3, "dd.MM.yyyy")).sendKeys(Keys.chord(Keys.ESCAPE));
-        $("[data-test-id='name'] input").setValue("Иванова Анна");
-        $("[data-test-id= 'phone'] input").setValue("+79261111111");
-        $("[data-test-id= 'agreement']").click();
-        $$("button").find(exactText("Забронировать")).click();
-        $("[data-test-id= 'notification']").shouldBe(appear, Duration.ofSeconds(15));
-    }
-
-    @Test
-    void shouldDataThisMonth() {
-        open("http://localhost:9999");
-        $("[data-test-id = 'city'] input").setValue("Казань");
-        $("[data-test-id = 'date'] input").sendKeys(Keys.chord(Keys.CONTROL, "a"), BACK_SPACE);
         $("[data-test-id = 'date'] input").click();
-        String date = generateDateDay(3, "dd");
-        $(withText(date)).click();
-        $("[data-test-id='name'] input").setValue("Иванова Анна");
-        $("[data-test-id= 'phone'] input").setValue("+79261111111");
-        $("[data-test-id= 'agreement']").click();
-        $$("button").find(exactText("Забронировать")).click();
-        $("[data-test-id= 'notification']").shouldBe(appear, Duration.ofSeconds(15));
-    }
 
-    @Test
-    void shouldDataThisMonthLast() {
-        open("http://localhost:9999");
-        $("[data-test-id = 'city'] input").setValue("Казань");
-        $("[data-test-id = 'date'] input").sendKeys(Keys.chord(Keys.CONTROL, "a"), BACK_SPACE);
-        $("[data-test-id = 'date'] input").click();
-        $$("td[data-day]").last().click();
-        $("[data-test-id='name'] input").setValue("Иванова Анна");
-        $("[data-test-id= 'phone'] input").setValue("+79261111111");
-        $("[data-test-id= 'agreement']").click();
-        $$("button").find(exactText("Забронировать")).click();
-        $("[data-test-id= 'notification']").shouldBe(appear, Duration.ofSeconds(15));
-    }
+        while (currentMonth < deliveryMonth) {
+            $x("//div[@class='calendar__arrow calendar__arrow_direction_right']").click();
+            currentMonth++;
+        }
+        String s = String.valueOf(deliveryDayOfMonth);
 
-    @Test
-    void shouldDataThisMonthFirst() {
-        open("http://localhost:9999");
-        $("[data-test-id = 'city'] input").setValue("Казань");
-        $("[data-test-id = 'date'] input").sendKeys(Keys.chord(Keys.CONTROL, "a"), BACK_SPACE);
-        $("[data-test-id = 'date'] input").click();
-        $$("td[data-day]").first().click();
-        $("[data-test-id='name'] input").setValue("Иванова Анна");
-        $("[data-test-id= 'phone'] input").setValue("+79261111111");
-        $("[data-test-id= 'agreement']").click();
-        $$("button").find(exactText("Забронировать")).click();
-        $("[data-test-id= 'notification']").shouldBe(appear, Duration.ofSeconds(15));
-    }
+        $x("//td[text()='" + s + "']").click();
 
-    @Test
-    void shouldDataNextMonth() {
-        open("http://localhost:9999");
-        $("[data-test-id = 'city'] input").setValue("Казань");
-        $("[data-test-id = 'date'] input").sendKeys(Keys.chord(Keys.CONTROL, "a"), BACK_SPACE);
-        $("[data-test-id = 'date'] input").click();
-        $("[class= 'calendar__arrow calendar__arrow_direction_right']").click();
-        $(byText("5")).click();
         $("[data-test-id='name'] input").setValue("Иванова Анна");
         $("[data-test-id= 'phone'] input").setValue("+79261111111");
         $("[data-test-id= 'agreement']").click();
         $$("button").find(exactText("Забронировать")).click();
-        $("[data-test-id= 'notification']").shouldBe(appear, Duration.ofSeconds(15));
+        $("[data-test-id= 'notification']").shouldBe(appear, Duration.ofSeconds(15)).shouldHave(Condition.text(data), Condition.visible);
     }
 }
 
